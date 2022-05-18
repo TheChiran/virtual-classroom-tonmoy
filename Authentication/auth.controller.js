@@ -5,7 +5,7 @@ const {registerValidation,loginValidation,generalUserRegisterValidation} = requi
 const {SendMail} = require('../Utility/mailer');
 const axios = require('axios');
 
-module.exports.register = async(req,res)=>{
+const register = async(req,res)=>{
     if(req.header('admin-secret') !== process.env.ADMIN_HEADER_SECRET) return res.status(404).send({message: 'invalid route'});
 
     //destruct body objects
@@ -29,24 +29,40 @@ module.exports.register = async(req,res)=>{
     message = `This is notify that registration ${email} has been successfully done. Please use your password: ${final_password} to login to the system.
     Please do not share this password with anyone, sharing this password might cause you cyber attack. Thank you`;
 
-    //create new user
-    const hashedPassword = await hashPassword(final_password);
-    const user = new User();
-    user.username = username;
-    user.email = email;
-    user.password = hashedPassword;
-    user.role = role;
-    try{
-        await SendMail(email,'Password forwarding',message, username);
-        await user.save();
-        res.send({user_id: user._id});
+    const data = {
+        username,
+        email,
+        password: hashPassword,
+        role
     }
-    catch(err){
-        res.status(500).send(`Unable to complete the process`);
-    }
+    const response = await generateUser(data);
+    if(response) return res.status(201).send({message: 'New user created successfully'});
+    
 };
 
-module.exports.login = async(req,res)=>{
+const generateUser = async(data)=>{
+    console.log('data',data.role);
+    const user = new User();
+    if(data.role === "student"){
+        user.name = data.name;
+        user.school_id = data.schoolId;
+    }else{
+        user.username = data.username;
+    }
+    user.email = data.email;
+    user.password = await hashPassword(data.final_password);
+    user.role = data.role;
+    try{
+        data.role === "teacher" && await SendMail(email,'Password forwarding',message, username);
+        const userData = await user.save();
+        return userData;
+    }
+    catch(err){
+        return err;
+    }
+}
+
+const login = async(req,res)=>{
     //validate user input
     const {error} = loginValidation(req.body);
     // if(error) console.log(error);
@@ -68,3 +84,10 @@ module.exports.login = async(req,res)=>{
 
     res.send({accessToken:token});
 };
+
+module.exports = {
+    generateUser,
+    login,
+    register
+}
+
