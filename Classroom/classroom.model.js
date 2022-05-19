@@ -37,6 +37,11 @@ const classroomSchema = new mongoose.Schema({
         min: 6,
         max: 20
     },
+    isActive:{
+        type: Boolean,
+        required: true,
+        default: true
+    }
 });
 
 module.exports = mongoose.model('Classroom',classroomSchema);

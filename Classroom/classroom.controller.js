@@ -21,6 +21,7 @@ const create = async(req,res,next)=>{
     classroom.subject = subject;
     classroom.name = name;
     classroom.teacher = req.user._id;
+    classroom.isActive = true;
 
     try{
         const response = await classroom.save();
@@ -57,7 +58,8 @@ const get = async(req,res,next)=>{
     const {_id} = req.params;
     
     try{
-        const classRoom = await ClassRoom.findOne({_id}).populate("students");
+        const classRoom = await ClassRoom.findOne({_id,isActive: true}).populate("students");
+        if(!classRoom) return res.status(400).send({message: 'Classroom not found'});
         return res.status(200).send(classRoom);
     }
     catch(error){

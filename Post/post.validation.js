@@ -1,13 +1,12 @@
 const Joi = require('@hapi/joi');
 
-//method to validate classroom input
-const classroomValidation = data =>{
+//method to validate post input
+const postValidation = data =>{
     const schema = {
-        name: Joi.string()
+        type: Joi.string()
                 .min(6)
                 .required(),
-        subject: Joi.string()
-                .min(6)
+        deadline: Joi.date()
                 .required()
     };
     return Joi.validate(data,schema);
@@ -15,5 +14,5 @@ const classroomValidation = data =>{
 
 
 module.exports = {
-    classroomValidation
+    postValidation
 }
