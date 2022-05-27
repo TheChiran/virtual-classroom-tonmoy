@@ -1,7 +1,6 @@
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 
-
 // Configure API key authorization: api-key
 let apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.SENDI_BLUE_API_KEY;

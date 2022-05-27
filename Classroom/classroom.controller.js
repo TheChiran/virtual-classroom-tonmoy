@@ -1,4 +1,5 @@
 const ClassRoom = require('./classroom.model');
+const Post = require('./../Post/post.model');
 const {classroomValidation} = require("./classroom.validation");
 const {generateUser} = require('../Authentication/auth.controller');
 const axios = require('axios');
@@ -67,9 +68,16 @@ const get = async(req,res,next)=>{
     }
 }
 
+const getUpcomingPost = async(req,res,next)=>{
+    // check if user is in the classroom or not
+    const upcomingPost = await Post.find({classroom: req.params.id, "deadline.date": {"$gt": new Date("2022-05-27")}});
+
+    return res.status(200).send(upcomingPost);
+}
 
 module.exports = {
     create,
     join,
-    get
+    get,
+    getUpcomingPost
 }

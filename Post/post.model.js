@@ -6,6 +6,10 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    name: {
+        type: String,
+        required: true
+    },
     marks:[{
         student: {
             type: Schema.Types.ObjectId,
@@ -35,8 +39,14 @@ const postSchema = new mongoose.Schema({
         default: true
     },
     deadline:{
-        type: Date,
-        required: true
+        date: {
+            type: Date,
+            required: true
+        },
+        time: {
+            type: String,
+            required: true
+        }
     },
     answers:[{
         student: {

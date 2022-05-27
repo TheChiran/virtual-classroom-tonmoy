@@ -4,11 +4,12 @@ const {postValidation} = require("./post.validation");
 const moment = require('moment');
 const {RunTaskScheduler} = require("./../Utility/post.notifier");
 const {months} = require('./../Utility/get.months');
+const {SendMail} = require('./../Utility/mailer');
 
 const create = async(req,res,next)=>{
 
     //destruct body objects
-    const {type,deadline,time} = req.body;
+    const {type,deadline,time,name} = req.body;
     
     //check if classroom exists
     const isClassRoomExists = await ClassRoom.findOne({_id: req.params.classroom});
@@ -16,17 +17,17 @@ const create = async(req,res,next)=>{
     const deadlineDate = new Date(deadline);
     const formatedTime = moment(`${time}`, "h:mm:ss A").format("HH:mm:ss").split(":");
 
-    
-    
     const post = new Post();
     post.type = type;
-    post.deadline = deadline;
+    post.deadline.date = deadline;
+    post.deadline.time = time;
     post.classroom = req.params.classroom;
+    post.name = name;
 
     try{
         const generatedPost = await post.save();
         // method to run scheduler
-        RunTaskScheduler(Number(formatedTime[1]),Number(formatedTime[0]) === 0 ? '23' : Number(formatedTime[0]),deadlineDate.getDate(),months[deadlineDate.getMonth()],deadlineDate.getDay(),notifyStudents,generatedPost._id);
+        RunTaskScheduler(Number(formatedTime[1]),Number(formatedTime[0]) === 0 ? '23' : Number(formatedTime[0]),deadlineDate.getDate(),months[deadlineDate.getMonth()],deadlineDate.getDay(),notifyStudents,generatedPost._id,req.params.classroom,deadline,time);
         return res.status(201).send({message: 'New post generated successfully'});
     }
     catch(error){
@@ -47,10 +48,17 @@ const get = async(req,res,next)=>{
     }
 }
 
-const notifyStudents = async(postId)=>{
+const notifyStudents = async(postId,classRoom,deadline_date,deadline_time)=>{
     // method to send notification to all students before 1 hours
-    // console.log('post id',postId)
-    // console.log('notify students');
+    let address,subject = 'Exam/Assignment notify',message,username;
+    const classroom = await ClassRoom.findOne({_id: classRoom}).populate("students").select("students");
+    const post = await Post.findOne({_id: postId});
+    classroom.students.map((student)=>{
+        address = student.email;
+        username = student.name;
+        message = `Dear Student,\nPlease be informed that you have an ${post.type} on ${deadline_date},${deadline_time}. Please be on time`;
+        SendMail(address,subject,message,username);
+    })
 }
 
 module.exports = {
