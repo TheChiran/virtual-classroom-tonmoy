@@ -41,9 +41,10 @@ const register = async(req,res)=>{
 };
 
 const generateUser = async(data)=>{
-    
     const user = new User();
-    if(data.role === "student"){
+    if(data.role.toString() === "student"){
+        const isUserExists = await User.findOne({school_id: data.schoolId});
+        if(isUserExists) return res.status(400).send({message: 'User already registered'});
         user.name = data.name;
         user.school_id = data.schoolId;
     }else{

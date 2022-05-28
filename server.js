@@ -43,6 +43,10 @@ app.use('/api/user',userRouter);
 app.use('/api/classroom',classroomRouter);
 app.use('/api/post',postRouter);
 
+app.get('/',(req,res)=>{
+    res.status(200).send({message: 'Hello world'});
+})
+
 app.listen(PORT,()=>{
     console.log(`listening or port: ${PORT}`);
 })

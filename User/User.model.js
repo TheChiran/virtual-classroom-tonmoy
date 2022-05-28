@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         min: 6,
         max: 20
-    },
+    }
 });
 
 module.exports = mongoose.model('User',userSchema);

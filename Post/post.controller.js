@@ -6,7 +6,7 @@ const {RunTaskScheduler} = require("./../Utility/post.notifier");
 const {months} = require('./../Utility/get.months');
 const {SendMail} = require('./../Utility/mailer');
 const multer = require('multer');
-
+const {deleteUploadDirectory} = require('./../Utility/delete.directory');
 //cloudinary integration
 const cloudinary = require('cloudinary').v2;
 
@@ -106,6 +106,12 @@ const getMark = async(req,res,next)=>{
 }
 
 const submitAnswer = async(req,res,next)=>{
+    const post = await Post.findOne({_id: req.params.id});
+    const date = new Date();
+
+    // it must be checked if deadline is exceeded or not 
+    if(new Date(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`) > new Date(post.deadline.date)) return res.status(403).send({message: "Sorry, you can't submit answers anymore. You already exceeded the deadline.", deadline: post.deadline})
+    
     const upload = multer({
         dest: 'uploads'
     }).array("answers");
@@ -114,7 +120,7 @@ const submitAnswer = async(req,res,next)=>{
             message: "Something went wrong"
         });
 
-        const post = await Post.findOne({_id: req.params.id});
+        
         let imageUrlLink = [];
         
         for(let index=0;index<req.files.length;index++){
@@ -128,6 +134,7 @@ const submitAnswer = async(req,res,next)=>{
         post.answers.push({student: req.user._id,answer: imageUrlLink});
         try{
             await post.save();
+            await deleteUploadDirectory();
             return res.status(201).send({message: 'Answer submitted successfully'});
         }
         catch(error){
