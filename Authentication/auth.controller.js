@@ -41,7 +41,7 @@ const register = async(req,res)=>{
 };
 
 const generateUser = async(data)=>{
-    console.log('data',data.role);
+    
     const user = new User();
     if(data.role === "student"){
         user.name = data.name;
@@ -62,7 +62,7 @@ const generateUser = async(data)=>{
     }
 }
 
-const login = async(req,res)=>{
+const login = async(req,res,next)=>{
     //validate user input
     const {error} = loginValidation(req.body);
     // if(error) console.log(error);

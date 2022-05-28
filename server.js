@@ -3,24 +3,20 @@ const app = require('express')();
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const cron = require('node-cron');
-const minute = 14,hour=1,day=20,month='May',week=5;
-const runScheduler = (callback)=>{
-    cron.schedule(`${minute} ${hour} ${day} ${month} ${week}`, () => {
-        callback()
-      });
-}
-const callbackMethod = ()=>{
-    console.log('called callback')
-}
-runScheduler(callbackMethod);
-
+const cloudinary = require('cloudinary').v2;
 
 //set up port
 const PORT = process.env.PORT || 3000;
 
 
 dotenv.config();
+
+// Cloudinary Configuration
+cloudinary.config({ 
+    cloud_name: 'dzywuv120', 
+    api_key: '383977439748697', 
+    api_secret: 'N_66lZPmjQqdEkx0Rcs5iKHnimg' 
+});
 
 //get routes
 const authRouter = require('./Authentication/auth.route');

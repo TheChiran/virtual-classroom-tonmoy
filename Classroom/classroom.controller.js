@@ -5,7 +5,6 @@ const {generateUser} = require('../Authentication/auth.controller');
 const axios = require('axios');
 
 const create = async(req,res,next)=>{
-
     //destruct body objects
     const {name,subject} = req.body;
     
@@ -75,9 +74,57 @@ const getUpcomingPost = async(req,res,next)=>{
     return res.status(200).send(upcomingPost);
 }
 
+const end = async(req,res,next)=>{
+    const classroom = await ClassRoom.findOne({_id: req.params.id});
+    classroom.isActive = false;
+
+    try{
+        await classroom.save();
+        return res.status(200).send({message: 'Classroom ended successfully'});
+    }catch(error){
+        next(error);
+    }
+}
+
+const submitResult = async(req,res,next)=>{
+    const {student_list} = req.body;
+    let result_list = [];
+    const classroom = await ClassRoom.findOne({_id: req.params.id});
+    result_list = [...classroom.results,...student_list];
+    classroom.results = result_list;
+
+    try{
+        await classroom.save();
+        return res.status(201).send({message: 'Updated grades for this classroom'});
+    }catch(error){
+        next(error);
+    }
+}
+
+const getResultList = async(req,res,next)=>{
+    const classroom = await ClassRoom.findOne({_id: req.params.id})
+                .select({"results": 1})
+                .populate({path: "results",populate:'student'});
+
+    return res.status(200).send({result_list: classroom.results});
+}
+
+const getResult = async(req,res,next)=>{
+    const classroom = await ClassRoom.findOne({_id: req.params.id})
+    .select({"results": 1})
+    .populate({path: "results",populate:'student'});
+    const studentResult = classroom.results.filter((result)=> result.student?._id.toString() === req.params.student)
+
+    return res.status(200).send({result: studentResult});
+}
+
 module.exports = {
     create,
     join,
     get,
-    getUpcomingPost
+    getUpcomingPost,
+    end,
+    submitResult,
+    getResultList,
+    getResult
 }

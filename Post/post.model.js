@@ -53,11 +53,10 @@ const postSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: "User"
         },
-        answer: {
+        answer: [{
             type: String,
-            required: true,
-            max: 20
-        }
+            required: true
+        }]
     }],
 });
 
