@@ -1,31 +1,36 @@
-const SibApiV3Sdk = require("sib-api-v3-sdk");
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-
-// Configure API key authorization: api-key
-let apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.SENDI_BLUE_API_KEY;
-
 module.exports.SendMail = (address,subject,message,username)=> {
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    sendSmtpEmail = {
-        sender: { email: "strativ@jobtest.com" },
-        to: [
-            {
-                email: `${address}`,
-                name: `${username}`,
-            },
-        ],
-        subject: `${subject}`,
-        textContent: `${message}`,
-    };
-    apiInstance.sendTransacEmail(sendSmtpEmail).then(
-        function (response) {
-            return true;
+    const mailjet = require ('node-mailjet')
+    .connect(`${process.env.mailjet_api}`, `${process.env.mailjet_secret}`)
+    const request = mailjet
+    .post("send", {'version': 'v3.1'})
+    .request({
+    "Messages":[
+        {
+        "From": {
+            "Email": "chiran.tonmoy.swe@gmail.com",
+            "Name": "Virtual Classroom"
         },
-        function (error) {
-            return error;
+        "To": [
+            {
+            "Email": `${address}`,
+            "Name": `${username}`
+            }
+        ],
+        "Subject": `${subject}`,
+        "TextPart": `${subject}`,
+        "HTMLPart": `${message}`,
+        "CustomID": "AppGettingStartedTest"
         }
-    )
+    ]
+    })
+    request
+    .then((result) => {
+        console.log(result.body)
+    })
+    .catch((err) => {
+        console.log('error',err);
+        console.log(err.statusCode)
+    })
+
 }
 

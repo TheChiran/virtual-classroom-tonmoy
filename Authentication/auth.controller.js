@@ -6,9 +6,8 @@ const {SendMail} = require('../Utility/mailer');
 const axios = require('axios');
 
 const register = async(req,res)=>{
-    
     //destruct body objects
-    const {username,email,role} = req.body;
+    const {username,email,role,password} = req.body;
     
     //validate user input
     const {error} = role === "teacher" ? generalUserRegisterValidation(req.body) : registerValidation(req.body);
@@ -17,13 +16,13 @@ const register = async(req,res)=>{
     //check if user exists or not
     const emailExists = await User.findOne({email});
     if(emailExists) return res.status(400).send({message: 'Email address already in use'});
-    let final_password = password,message;
+    let final_password = role === "admin" ? password : undefined,message;
 
     // generate random password if user role is teacher
-    if(role === 'teacher'){
+    
+    if(role === "teacher"){
         const response = await axios.get('https://passwordinator.herokuapp.com/?num=true&char=true&caps=true&len=14');
         if(response.status !== 200) return res.status(500).send({message: 'Error occurred while doing the operation'});
-        console.log('response',response);
         final_password = response.data.data;
     }
     message = `This is notify that registration ${email} has been successfully done. Please use your password: ${final_password} to login to the system.
@@ -33,7 +32,8 @@ const register = async(req,res)=>{
         username,
         email,
         final_password: final_password,
-        role
+        role,
+        message
     }
     const response = await generateUser(data);
     if(response) return res.status(201).send({message: 'New user created successfully'});
@@ -54,7 +54,7 @@ const generateUser = async(data)=>{
     user.password = await hashPassword(data.final_password);
     user.role = data.role;
     try{
-        data.role === "teacher" && await SendMail(email,'Password forwarding',message, username);
+        data.role === "teacher" && await SendMail(data.email,'Password forwarding',data.message, data.username);
         const userData = await user.save();
         return userData;
     }
