@@ -32,7 +32,7 @@ const register = async(req,res)=>{
     const data = {
         username,
         email,
-        password: hashPassword,
+        final_password: final_password,
         role
     }
     const response = await generateUser(data);
