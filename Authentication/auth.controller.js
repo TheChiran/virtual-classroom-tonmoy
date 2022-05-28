@@ -59,6 +59,7 @@ const generateUser = async(data)=>{
         return userData;
     }
     catch(err){
+        console.log('error',err);
         return err;
     }
 }
