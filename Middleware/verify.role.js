@@ -1,6 +1,6 @@
 module.exports.isTeacher = (req,res,next)=>{
     //extract token from header
-    if(req.user.role !== "teacher" || req.user.role !== "admin") return res.status(400).send({message: 'This feature is forbidden.'});
+    if(req.user.role !== "teacher" && req.user.role !== "admin") return res.status(400).send({message: 'This feature is forbidden.'});
     next();
 }
 

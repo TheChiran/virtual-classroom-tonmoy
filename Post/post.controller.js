@@ -51,9 +51,14 @@ const get = async(req,res,next)=>{
     const {_id} = req.params;
     
     try{
-        const classRoom = await ClassRoom.findOne({_id,isActive: true}).populate("students");
-        if(!classRoom) return res.status(400).send({message: 'Post not found'});
-        return res.status(200).send(classRoom);
+        const post = await Post.findOne({_id,isActive: true})
+            .populate({
+                path: "students",
+                model: "User",
+                select: {'_id': 1,username: 1, email: 1}
+            });
+        if(!post) return res.status(400).send({message: 'Post not found'});
+        return res.status(200).send(post);
     }
     catch(error){
         next(error);
@@ -63,21 +68,26 @@ const get = async(req,res,next)=>{
 const notifyStudents = async(postId,classRoom,deadline_date,deadline_time)=>{
     // method to send notification to all students before 1 hours
     let address,subject = 'Exam/Assignment notify',message,username;
-    const classroom = await ClassRoom.findOne({_id: classRoom}).populate("students").select("students");
+    const classroom = await ClassRoom.findOne({_id: classRoom})
+                                    .populate({
+                                        path: "students",
+                                        model: "User",
+                                        select: {'_id': 1,username: 1, email: 1}
+                                    }).select("students");
     const post = await Post.findOne({_id: postId});
-    classroom.students.map((student)=>{
+    classroom.students.map(async(student)=>{
         address = student.email;
         username = student.name;
         message = `Dear Student,\nPlease be informed that you have an ${post.type} on ${deadline_date},${deadline_time}. Please be on time`;
-        SendMail(address,subject,message,username);
-    })
+        await SendMail(address,subject,message,username);
+    });
 }
 
 const submitMarks = async(req,res,next)=>{
     const {student_list} = req.body;
     let mark_list = [];
     const post = await Post.findOne({_id: req.params.id});
-    mark_list = [...post.marks,...student_list];
+    mark_list = [...post?.marks,...student_list];
     post.marks = mark_list;
 
     try{
@@ -91,19 +101,30 @@ const submitMarks = async(req,res,next)=>{
 const getMarks = async(req,res,next)=>{
     const post = await Post.findOne({_id: req.params.id})
                 .select({"marks": 1})
-                .populate({path: "marks",populate:'student'});
+                .populate({
+                    path: "students",
+                    model: "User",
+                    select: {'_id': 1,username: 1, email: 1}
+                })
+                .populate({path: "marks"});
 
-    return res.status(200).send({mark_list: post.marks});
+    return res.status(200).send({mark_list: post?.marks});
 }
 
 const getMark = async(req,res,next)=>{
     const post = await Post.findOne({_id: req.params.id})
                 .select({"marks": 1})
-                .populate({path: "marks",populate:'student'});
+                .populate({
+                    path: "students",
+                    model: "User",
+                    select: {'_id': 1,username: 1, email: 1}
+                })
+                .populate({path: "marks"});
     const studentResult = post.marks.filter((mark)=> mark.student?._id.toString() === req.params.student)
     
     return res.status(200).send({mark_list: studentResult});
 }
+
 
 const submitAnswer = async(req,res,next)=>{
     const post = await Post.findOne({_id: req.params.id});
@@ -147,9 +168,14 @@ const getAnswerList = async(req,res,next)=>{
     // must check if user is teacher or not
     const post = await Post.findOne({_id: req.params.id})
                 .select({"answers": 1})
-                .populate({path: "answers",populate:{path: 'student',model: 'User'}});
+                .populate({
+                    path: "students",
+                    model: "User",
+                    select: {'_id': 1,username: 1, email: 1}
+                })
+                .populate({path: "answers"});
 
-    return res.status(200).send({answer_list: post.answers});
+    return res.status(200).send({answer_list: post?.answers});
 }
 
 module.exports = {

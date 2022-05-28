@@ -43,12 +43,9 @@ const join = async(req,res,next)=>{
     if(!classRoom || classRoom.isActive === false) return res.status(400).send({message: 'Invalid classroom code or this classroom is closed'});
 
     const {schoolId,password,email,name} = req.body;
-    console.log('body',req.body)
+    
     const student = await User.findOne({school_id: Number(schoolId),email});
-    console.log('student',student);
-    classRoom.students.map((data)=>{
-        console.log('data',data);
-    })
+    
     const studentExists = classRoom.students.filter((data)=> data.toString() === student._id.toString());
     console.log('student exists',studentExists)
     if(studentExists) return res.status(400).send({message: 'Your already in the classroom'});
@@ -72,7 +69,12 @@ const get = async(req,res,next)=>{
     const {_id} = req.params;
     
     try{
-        const classRoom = await ClassRoom.findOne({_id,isActive: true}).populate("students");
+        const classRoom = await ClassRoom.findOne({_id,isActive: true})
+                            .populate({
+                                path: "students",
+                                model: "User",
+                                select: {'_id': 1,username: 1, email: 1}
+                            });
         if(!classRoom) return res.status(400).send({message: 'Classroom not found'});
         return res.status(200).send(classRoom);
     }
@@ -105,7 +107,7 @@ const submitResult = async(req,res,next)=>{
     const {student_list} = req.body;
     let result_list = [];
     const classroom = await ClassRoom.findOne({_id: req.params.id});
-    result_list = [...classroom.results,...student_list];
+    result_list = [...classroom?.results,...student_list];
     classroom.results = result_list;
 
     try{
@@ -119,18 +121,60 @@ const submitResult = async(req,res,next)=>{
 const getResultList = async(req,res,next)=>{
     const classroom = await ClassRoom.findOne({_id: req.params.id})
                 .select({"results": 1})
-                .populate({path: "results",populate:'student'});
+                .populate({
+                    path: "students",
+                    model: "User",
+                    select: {'_id': 1,username: 1, email: 1}
+                })
+                .populate({path: "results"});
 
-    return res.status(200).send({result_list: classroom.results});
+    return res.status(200).send({result_list: classroom?.results});
 }
 
 const getResult = async(req,res,next)=>{
     const classroom = await ClassRoom.findOne({_id: req.params.id})
     .select({"results": 1})
-    .populate({path: "results",populate:'student'});
-    const studentResult = classroom.results.filter((result)=> result.student?._id.toString() === req.params.student)
+    .populate({
+        path: "students",
+        model: "User",
+        select: {'_id': 1,username: 1, email: 1}
+    })
+    .populate({path: "results"});
+    const studentResult = classroom?.results.filter((result)=> result.student?._id.toString() === req.params.student)
 
     return res.status(200).send({result: studentResult});
+}
+
+const getStudentList = async(req,res,next)=>{
+    const classroom = await ClassRoom.findOne({_id: req.params.id})
+    .select({"students": 1})
+    .populate({
+        path: "students",
+        model: "User",
+        select: {'_id': 1,username: 1, email: 1}
+    });
+
+    return res.status(200).send({student_list: classroom.students});
+}
+
+const getTeacherGeneratedClassRoomList = async(req,res,next)=>{
+    // to get all classroom of specific teacher
+    
+    const classRoomList = await ClassRoom.find({teacher: req.user._id})
+                            .populate({
+                                path: "students",
+                                model: "User",
+                                select: {'_id': 1,username: 1, email: 1}
+                            })
+                            .populate({"path":"posts"});
+
+    return res.status(200).send({classroom_list: classRoomList});
+}
+
+const getAllClassRoom = async(req,res,next)=>{
+    const classRoomList = await ClassRoom.find();
+
+    return res.status(200).send({classroom_list: classRoomList});
 }
 
 module.exports = {
@@ -141,5 +185,8 @@ module.exports = {
     end,
     submitResult,
     getResultList,
-    getResult
+    getResult,
+    getTeacherGeneratedClassRoomList,
+    getAllClassRoom,
+    getStudentList
 }

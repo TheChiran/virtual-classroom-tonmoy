@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 module.exports.verifyUser = (req,res,next)=>{
     //extract token from header
     const token = req.header('auth-token');
-
     if(!token) return res.sendStatus(400).send('Access Denied');
 
     try{
