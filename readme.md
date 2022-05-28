@@ -1,4 +1,13 @@
 # Project: Virtual-classroom Live
+# Flow of work
+
+1. Create admin user
+2. Create teacher 
+3. Create classroom
+4. Create post
+5. Add student into classroom
+
+
 To understand easily, I have included all body empty. Hope anyone can just give input and able to test.
 # 📁 Collection: Admin 
 
