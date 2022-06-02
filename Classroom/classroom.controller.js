@@ -52,7 +52,7 @@ const join = async(req,res,next)=>{
         if(studentExists.length> 0) return res.status(400).send({message: 'Your already in the classroom'});
     }
 
-    const user = await generateUser({username: name,schoolId,final_password: password,email,role: "student"});
+    const user = await generateUser({username: name,schoolId,final_password: password,email,role: "student"},res);
     if(!user._id) return res.status(500).send({message: 'Something went wrong, please try again'});
     
     // student id is must to push into classroom
