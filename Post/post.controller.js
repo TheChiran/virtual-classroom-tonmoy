@@ -17,6 +17,10 @@ const create = async(req,res,next)=>{
     
     const {error} = postValidation(req.body);
     if(error) return res.status(400).send(error);
+
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.classroom)) return res.status(400).send({message: 'Please pass object id as param'});
+    
     //check if classroom exists
     const isClassRoomExists = await ClassRoom.findOne({_id: req.params.classroom});
     if(!isClassRoomExists) return res.status(404).send({message: 'Classroom does not exists'});
@@ -48,6 +52,9 @@ const getList = async(req,res,next)=>{
 }
 
 const get = async(req,res,next)=>{
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params._id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const {_id} = req.params;
     
     try{
@@ -84,6 +91,9 @@ const notifyStudents = async(postId,classRoom,deadline_date,deadline_time)=>{
 }
 
 const submitMarks = async(req,res,next)=>{
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const {student_list} = req.body;
     let mark_list = [];
     const post = await Post.findOne({_id: req.params.id});
@@ -99,6 +109,9 @@ const submitMarks = async(req,res,next)=>{
 }
 
 const getMarks = async(req,res,next)=>{
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const post = await Post.findOne({_id: req.params.id})
                 .select({"marks": 1})
                 .populate({
@@ -112,6 +125,9 @@ const getMarks = async(req,res,next)=>{
 }
 
 const getMark = async(req,res,next)=>{
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const post = await Post.findOne({_id: req.params.id})
                 .select({"marks": 1})
                 .populate({
@@ -127,6 +143,9 @@ const getMark = async(req,res,next)=>{
 
 
 const submitAnswer = async(req,res,next)=>{
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const post = await Post.findOne({_id: req.params.id});
     const date = new Date();
 
@@ -165,6 +184,9 @@ const submitAnswer = async(req,res,next)=>{
 }
 
 const getAnswerList = async(req,res,next)=>{
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     // must check if user is teacher or not
     const post = await Post.findOne({_id: req.params.id})
                 .select({"answers": 1})

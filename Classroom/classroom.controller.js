@@ -4,6 +4,7 @@ const User = require('./../User/User.model');
 const {classroomValidation} = require("./classroom.validation");
 const {generateUser} = require('../Authentication/auth.controller');
 const axios = require('axios');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 const create = async(req,res,next)=>{
     //destruct body objects
@@ -68,6 +69,9 @@ const join = async(req,res,next)=>{
 }
 
 const get = async(req,res,next)=>{
+
+    if(!ObjectId.isValid(req.params._id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const {_id} = req.params;
     
     try{
@@ -94,6 +98,10 @@ const getUpcomingPost = async(req,res,next)=>{
 }
 
 const end = async(req,res,next)=>{
+
+    // to check if id os object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const classroom = await ClassRoom.findOne({_id: req.params.id});
     classroom.isActive = false;
 
@@ -106,8 +114,13 @@ const end = async(req,res,next)=>{
 }
 
 const submitResult = async(req,res,next)=>{
+
+    // to check if id os object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const {student_list} = req.body;
     let result_list = [];
+
     const classroom = await ClassRoom.findOne({_id: req.params.id});
     result_list = [...classroom.results,...student_list];
     classroom.results = result_list;
@@ -121,7 +134,10 @@ const submitResult = async(req,res,next)=>{
 }
 
 const getResultList = async(req,res,next)=>{
-    const classroom = await ClassRoom.findOne({_id: req.params.id})
+    
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
+    const classroom = await ClassRoom.findById({_id: req.params.id})
                 .select({"results": 1})
                 .populate({
                     path: "students",
@@ -129,11 +145,14 @@ const getResultList = async(req,res,next)=>{
                     select: {'_id': 1,username: 1, email: 1}
                 })
                 .populate({path: "results"});
-
+    
     return res.status(200).send({result_list: classroom.results});
 }
 
 const getResult = async(req,res,next)=>{
+
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const classroom = await ClassRoom.findOne({_id: req.params.id})
     .select({"results": 1})
     .populate({
@@ -148,6 +167,9 @@ const getResult = async(req,res,next)=>{
 }
 
 const getStudentList = async(req,res,next)=>{
+    // to check if id os object id
+    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+
     const classroom = await ClassRoom.findOne({_id: req.params.id})
     .select({"students": 1})
     .populate({
