@@ -132,6 +132,7 @@ const submitResult = async(req,res,next)=>{
         await classroom.save();
         return res.status(201).send({message: 'Updated grades for this classroom'});
     }catch(error){
+        console.log('error',error);
         next(error);
     }
 }
