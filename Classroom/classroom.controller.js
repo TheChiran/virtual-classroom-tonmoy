@@ -47,8 +47,8 @@ const join = async(req,res,next)=>{
     const student = await User.findOne({school_id: Number(schoolId),email});
     
     const studentExists = classRoom.students.filter((data)=> data.toString() === student._id.toString());
-    console.log('student exists',studentExists)
-    if(studentExists) return res.status(400).send({message: 'Your already in the classroom'});
+    
+    if(studentExists.length> 0) return res.status(400).send({message: 'Your already in the classroom'});
 
     const user = await generateUser({name,schoolId,final_password: password,email,role: "student"});
     if(!user._id) return res.status(500).send({message: 'Something went wrong, please try again'});
