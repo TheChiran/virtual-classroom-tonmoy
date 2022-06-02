@@ -20,8 +20,8 @@ const create = async(req,res,next)=>{
     const {type,deadline,time,name} = req.body;
     
     const {error} = postValidation(req.body);
+    
     if(error) return res.status(400).send(error);
-
 
     //check if classroom exists
     const isClassRoomExists = await ClassRoom.findOne({_id: req.params.classroom});

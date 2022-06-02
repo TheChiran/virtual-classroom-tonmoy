@@ -7,7 +7,9 @@ const postValidation = data =>{
                 .min(4)
                 .required(),
         deadline: Joi.date()
-                .required()
+                .required(),
+        time: Joi.string(),
+        name:   Joi.string()
     };
     return Joi.validate(data,schema);
 };
