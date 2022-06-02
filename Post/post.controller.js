@@ -9,12 +9,13 @@ const multer = require('multer');
 const {deleteUploadDirectory} = require('./../Utility/delete.directory');
 //cloudinary integration
 const cloudinary = require('cloudinary').v2;
+const ObjectId = require('mongoose').Types.ObjectId;
 
 const create = async(req,res,next)=>{
 
     // to check if param id is object id
     if(!ObjectId.isValid(req.params.classroom)) return res.status(400).send({message: 'Please pass object id as param'});
-    
+
     //destruct body objects
     const {type,deadline,time,name} = req.body;
     
