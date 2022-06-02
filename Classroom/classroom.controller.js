@@ -114,9 +114,9 @@ const end = async(req,res,next)=>{
 }
 
 const submitResult = async(req,res,next)=>{
-
+    console.log('sub result route',req.body);
     // to check if id os object id
-    if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
+    // if(!ObjectId.isValid(req.params.id)) return res.status(400).send({message: 'Please pass object id as param'});
 
     const {student_list} = req.body;
     let result_list = [];
@@ -132,7 +132,6 @@ const submitResult = async(req,res,next)=>{
         await classroom.save();
         return res.status(201).send({message: 'Updated grades for this classroom'});
     }catch(error){
-        console.log('error',error);
         next(error);
     }
 }
