@@ -4,7 +4,7 @@ const Joi = require('@hapi/joi');
 const postValidation = data =>{
     const schema = {
         type: Joi.string()
-                .min(6)
+                .min(4)
                 .required(),
         deadline: Joi.date()
                 .required()

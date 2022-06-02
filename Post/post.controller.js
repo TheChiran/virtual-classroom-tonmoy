@@ -12,15 +12,16 @@ const cloudinary = require('cloudinary').v2;
 
 const create = async(req,res,next)=>{
 
+    // to check if param id is object id
+    if(!ObjectId.isValid(req.params.classroom)) return res.status(400).send({message: 'Please pass object id as param'});
+    
     //destruct body objects
     const {type,deadline,time,name} = req.body;
     
     const {error} = postValidation(req.body);
     if(error) return res.status(400).send(error);
 
-    // to check if param id is object id
-    if(!ObjectId.isValid(req.params.classroom)) return res.status(400).send({message: 'Please pass object id as param'});
-    
+
     //check if classroom exists
     const isClassRoomExists = await ClassRoom.findOne({_id: req.params.classroom});
     if(!isClassRoomExists) return res.status(404).send({message: 'Classroom does not exists'});
