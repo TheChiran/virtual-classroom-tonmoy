@@ -87,7 +87,7 @@ const submitMarks = async(req,res,next)=>{
     const {student_list} = req.body;
     let mark_list = [];
     const post = await Post.findOne({_id: req.params.id});
-    mark_list = [...post?.marks,...student_list];
+    mark_list = [...post.marks,...student_list];
     post.marks = mark_list;
 
     try{
@@ -108,7 +108,7 @@ const getMarks = async(req,res,next)=>{
                 })
                 .populate({path: "marks"});
 
-    return res.status(200).send({mark_list: post?.marks});
+    return res.status(200).send({mark_list: post.marks});
 }
 
 const getMark = async(req,res,next)=>{
@@ -120,7 +120,7 @@ const getMark = async(req,res,next)=>{
                     select: {'_id': 1,username: 1, email: 1}
                 })
                 .populate({path: "marks"});
-    const studentResult = post.marks.filter((mark)=> mark.student?._id.toString() === req.params.student)
+    const studentResult = post.marks.filter((mark)=> mark.student._id.toString() === req.params.student)
     
     return res.status(200).send({mark_list: studentResult});
 }
@@ -175,7 +175,7 @@ const getAnswerList = async(req,res,next)=>{
                 })
                 .populate({path: "answers"});
 
-    return res.status(200).send({answer_list: post?.answers});
+    return res.status(200).send({answer_list: post.answers});
 }
 
 module.exports = {

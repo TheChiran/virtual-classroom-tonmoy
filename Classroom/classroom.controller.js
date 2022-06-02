@@ -46,9 +46,11 @@ const join = async(req,res,next)=>{
     
     const student = await User.findOne({school_id: Number(schoolId),email});
     
-    const studentExists = classRoom.students.filter((data)=> data.toString() === student._id.toString());
+    if(student){
+        const studentExists = classRoom.students.filter((data)=> data.toString() === student._id.toString());
     
-    if(studentExists.length> 0) return res.status(400).send({message: 'Your already in the classroom'});
+        if(studentExists.length> 0) return res.status(400).send({message: 'Your already in the classroom'});
+    }
 
     const user = await generateUser({username: name,schoolId,final_password: password,email,role: "student"});
     if(!user._id) return res.status(500).send({message: 'Something went wrong, please try again'});
@@ -107,7 +109,7 @@ const submitResult = async(req,res,next)=>{
     const {student_list} = req.body;
     let result_list = [];
     const classroom = await ClassRoom.findOne({_id: req.params.id});
-    result_list = [...classroom?.results,...student_list];
+    result_list = [...classroom.results,...student_list];
     classroom.results = result_list;
 
     try{
@@ -128,7 +130,7 @@ const getResultList = async(req,res,next)=>{
                 })
                 .populate({path: "results"});
 
-    return res.status(200).send({result_list: classroom?.results});
+    return res.status(200).send({result_list: classroom.results});
 }
 
 const getResult = async(req,res,next)=>{
@@ -140,7 +142,7 @@ const getResult = async(req,res,next)=>{
         select: {'_id': 1,username: 1, email: 1}
     })
     .populate({path: "results"});
-    const studentResult = classroom?.results.filter((result)=> result.student?._id.toString() === req.params.student)
+    const studentResult = classroom.results.filter((result)=> result.student._id.toString() === req.params.student)
 
     return res.status(200).send({result: studentResult});
 }

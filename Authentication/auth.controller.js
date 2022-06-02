@@ -42,17 +42,19 @@ const register = async(req,res)=>{
 
 const generateUser = async(data)=>{
     const user = new User();
+    
     if(data.role.toString() === "student"){
         const isUserExists = await User.findOne({school_id: data.schoolId});
         if(isUserExists) return res.status(400).send({message: 'User already registered'});
         user.name = data.name;
         user.school_id = data.schoolId;
-    }else{
-        user.username = data.username;
     }
+
+    user.username = data.username;
     user.email = data.email;
     user.password = await hashPassword(data.final_password);
     user.role = data.role;
+    
     try{
         data.role === "teacher" && await SendMail(data.email,'Password forwarding',data.message, data.username);
         const userData = await user.save();
