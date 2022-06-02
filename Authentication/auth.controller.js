@@ -43,15 +43,16 @@ const register = async(req,res)=>{
 const generateUser = async(data,res)=>{
     const user = new User();
 
-    //validate user input
-    const {error} = registerValidation({
-        username: data.username,
-        email: data.email,
-        password: data.final_password,
-        role: data.role});
-    if(error) return res.status(400).send(error);
-
+    
     if(data.role.toString() === "student"){
+        //validate user input
+        const {error} = registerValidation({
+            username: data.username,
+            email: data.email,
+            password: data.final_password,
+            role: data.role});
+        if(error) return res.status(400).send(error);
+        
         const isUserExists = await User.findOne({school_id: data.schoolId});
         if(isUserExists) return res.status(400).send({message: 'User already registered'});
         user.name = data.name;
