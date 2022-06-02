@@ -19,15 +19,6 @@ const postSchema = new mongoose.Schema({
             type: Number
         }
     }],
-    results:[{
-        student: {
-            type: Schema.Types.ObjectId,
-            ref: "User"
-        },
-        grade: {
-            type: Number
-        }
-    }],
     type:{
         type: String,
         required: true,

@@ -122,6 +122,9 @@ const submitResult = async(req,res,next)=>{
     let result_list = [];
 
     const classroom = await ClassRoom.findOne({_id: req.params.id});
+
+    if(!classroom) return res.status(404).send({message: 'Classroom not found'});
+    
     result_list = [...classroom.results,...student_list];
     classroom.results = result_list;
 

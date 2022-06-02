@@ -20,6 +20,15 @@ const classroomSchema = new mongoose.Schema({
         ref: "Post",
         required: false
     }],
+    results:[{
+        student: {
+            type: Schema.Types.ObjectId,
+            ref: "User"
+        },
+        grade: {
+            type: Number
+        }
+    }],
     name:{
         type: String,
         required: true,
